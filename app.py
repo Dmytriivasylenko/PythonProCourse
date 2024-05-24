@@ -10,7 +10,7 @@ def new_user_register():
 def registered_form ():
     return ' please sign in to register user'
 
-#################################################################
+
 @app.post('/login')
 def user_login ():
     return ' please sign in to login'
@@ -18,7 +18,7 @@ def user_login ():
 def user_login_form ():
     return 'please enter login'
 
-#################################################################
+
 @app.post('/user')
 def add_user_info ():
     return 'user data were modified'
@@ -29,7 +29,7 @@ def user_info():
 def user_update():
     return 'user was successfully updated '
 
-#################################################################
+
 @app.post('/funds')
 def add_funds():
     return 'user account was funded'
@@ -37,7 +37,7 @@ def add_funds():
 def user_deposit():
     return 'user deposit value'
 
-#################################################################
+
 @app.post('/reservations')
 def user_reservation_info():
     return 'user reservation info'
@@ -46,7 +46,7 @@ def user_reservation_info():
 def user_reservation_added():
     return 'user reservations was added'
 
-#################################################################
+
 @app.get('/user/reservations/<reservation_id>')
 def reservation_info(reservation_id):  # put application's code here
     return f' user reservations {reservation_id} '
@@ -57,7 +57,6 @@ def reservation_add(reservation_id):  # put application's code here
 def reservation_update(reservation_id):  # put application's code here
     return 'user reservations was updated {reservation_id}'
 
-#################################################################
 
 @app.get('/checkout')
 def user_checkout_info():  # put application's code here
@@ -69,7 +68,6 @@ def user_checkout_added():  # put application's code here
 def user_checkout_update():  # put application's code here
     return 'balance was updated'
 
-#################################################################
 @app.get('/fitness_center')
 def user_select():  # put application's code here
     return 'please find a fitness center'
@@ -78,7 +76,7 @@ def user_select():  # put application's code here
 def user_reservation(gym_id):  # put application's code here
     return f' fitness center {gym_id} please select a fitness center'
 
-#################################################################
+
 @app.get('/fitness_center/<gym_id>/trainer')
 def get_trainers(gym_id):  # put application's code here
     return f'fitness center {gym_id} trainers list'
@@ -86,7 +84,7 @@ def get_trainers(gym_id):  # put application's code here
 def get_trainers_info(gym_id, trainer_id):  # put application's code here
     return f'fitness center {gym_id} trainer {trainer_id} trainers list'
 
-#################################################################
+
 @app.get('/fitness_center/<gym_id>/trainer/<trainer_id>/rating ')
 def get_coach_rating(gym_id, trainer_id):  # put application's code here
     return f'fitness center {gym_id} rating {trainer_id} '
@@ -97,7 +95,6 @@ def set_coach_rating(gym_id, trainer_id):  # put application's code here
 def update_coach_score(gym_id, trainer_id):  # put application's code here
     return f'fitness center {gym_id} rating {trainer_id} was updated'
 
-#################################################################
 @app.get('/fitness_center/<gym_id>/services')
 def get_service(gym_id):  # put application's code here
     return f'fitness center {gym_id} service list'
@@ -106,7 +103,6 @@ def get_service(gym_id):  # put application's code here
 def get_service_info(gym_id, service_id):  # put application's code here
     return f'fitness center {gym_id} service {service_id} service list'
 
-#################################################################
 
 @app.get('/fitness_center/<gym_id>/loyality_programs  ')
 def user_information_program(gym_id):  # put application's code here
