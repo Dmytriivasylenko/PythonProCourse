@@ -30,6 +30,7 @@ def insert_to_db(query):
     cur = con.cursor()
     cur.execute(query)
     con.commit()
+    con.close()
 app = Flask(__name__)
 
 
@@ -52,8 +53,11 @@ def registered_form():
 @app.post('/register')
 def new_user_register():
     form_data = request.form
-    insert_to_db(f' INSERT INTO user (login, password, birth_date, phone) VALUES ({form_data["login"]},{form_data["password"]},{form_data["birth_date"]},{form_data["phone"]}')
+    insert_to_db(
+        f'INSERT INTO user (login, password, birth_date, phone) '
+        f'VALUES ({form_data["login"]},{form_data["password"]},{form_data["birth_date"]},{form_data["phone"]}')
     return f'user registered'
+
 @app.post('/login')
 def user_login():
     return 'please sign in to login'
@@ -64,8 +68,9 @@ def user_login_form():
 
 @app.get('/user')
 def add_user_info():
-    res = get_from_db('SELECT login, phone, birth_date FROM user WHERE id=1')
-    return {res}
+    res = get_from_db(f'SELECT login, phone, birth_date FROM user WHERE id=1')
+    return res
+
 @app.post('/user')
 def user_info():
     return f'user information '
@@ -142,20 +147,30 @@ def set_coach_rating(gym_id, trainer_id):  # put application's code here
 def update_coach_score(gym_id, trainer_id):  # put application's code here
     return f'fitness center {gym_id} rating {trainer_id} was updated'
 
+
+
 @app.get('/fitness_center/<gym_id>/services')
 def get_service(gym_id):  # put application's code here
     return f'fitness center {gym_id} service list'
+
+
+
+
+
 
 @app.get('/fitness_center/<gym_id>/services/<service_id> ')
 def get_service_info(gym_id, service_id):  # put application's code here
     return f'fitness center {gym_id} service {service_id} service list'
 
 
+
+
+
+
+
 @app.get('/fitness_center/<gym_id>/loyality_programs  ')
 def user_information_program(gym_id):  # put application's code here
     return f'fitness center {gym_id} loyalty program list'
-
-
 
 
 if __name__ == '__main__':
