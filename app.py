@@ -1,9 +1,10 @@
-import cursor
+
 from flask import Flask, request
 import sqlite3
 
-con = sqlite3.connect('dp.db')
-cur = con.cursor()
+
+
+app = Flask(__name__)
 
 
 def dict_factory(cursor, row):
@@ -12,9 +13,10 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
-def get_from_db(query, many=True ):
-    con = sqlite3.connect("dp.db")
+def get_from_db(query, many=True):
+    con = sqlite3.connect("db.db")
     con.row_factory = dict_factory
+    con.row_factory = sqlite3.Row
     cur = con.cursor()
     cur.execute(query)
     if many:
@@ -26,13 +28,11 @@ def get_from_db(query, many=True ):
 
 
 def insert_to_db(query):
-    con = sqlite3.connect("dp.db")
+    con = sqlite3.connect("db.db")
     cur = con.cursor()
     cur.execute(query)
     con.commit()
     con.close()
-app = Flask(__name__)
-
 
 
 @app.get('/register')
@@ -53,9 +53,7 @@ def registered_form():
 @app.post('/register')
 def new_user_register():
     form_data = request.form
-    insert_to_db(
-        f'INSERT INTO user (login, password, birth_date, phone) '
-        f'VALUES ({form_data["login"]},{form_data["password"]},{form_data["birth_date"]},{form_data["phone"]}')
+    insert_to_db(f'INSERT INTO user (login, password, birth_date, phone) VALUES ({form_data["login"]},{form_data["password"]},{form_data["birth_date"]},{form_data["phone"]}')
     return f'user registered'
 
 @app.post('/login')
@@ -69,7 +67,7 @@ def user_login_form():
 @app.get('/user')
 def add_user_info():
     res = get_from_db(f'SELECT login, phone, birth_date FROM user WHERE id=1')
-    return res
+    return {res}
 
 @app.post('/user')
 def user_info():
@@ -94,7 +92,6 @@ def user_reservation_info():
 @app.get('/reservations')
 def user_reservation_added():
     return 'user reservations was added'
-
 
 @app.get('/user/reservations/<reservation_id>')
 def reservation_info(reservation_id):  # put application's code here
