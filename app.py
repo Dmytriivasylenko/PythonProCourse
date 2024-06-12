@@ -1,22 +1,19 @@
-
 from flask import Flask, request
 import sqlite3
 
-
-
 app = Flask(__name__)
 
-
+# Функція для перетворення рядка результату в словник
 def dict_factory(cursor, row):
     d = {}
     for idx, col in enumerate(cursor.description):
         d[col[0]] = row[idx]
     return d
 
+# Функція для виконання запитів до бази даних та отримання результатів
 def get_from_db(query, many=True):
     con = sqlite3.connect("db.db")
     con.row_factory = dict_factory
-    con.row_factory = sqlite3.Row
     cur = con.cursor()
     cur.execute(query)
     if many:
@@ -26,7 +23,7 @@ def get_from_db(query, many=True):
     con.close()
     return res
 
-
+# Функція для виконання запитів INSERT, UPDATE, DELETE до бази даних
 def insert_to_db(query):
     con = sqlite3.connect("db.db")
     cur = con.cursor()
@@ -34,27 +31,53 @@ def insert_to_db(query):
     con.commit()
     con.close()
 
-
-@app.get('/register')
+# Маршрут та обробник для відображення форми реєстрації
+@app.route('/register', methods=['GET'])
 def registered_form():
-    return f"""
-  <form action="/register" method="post">"
-  <label for="login">login:</label><br>
-  <input type="text" id="login" name="login"><br>
-  <label for="password">password:</label><br>
-  <input type="password" id="password" name="password"><br>
-  <label for="birth_date">birth_date:</label><br>
-  <input type="date" id="birth_date" name="birth_date"><br>
-  <label for="phone">phone:</label><br>
-  <input type="text" id="phone" name="phone"><br>
-  <input type="submit" value="Submit">
-</form>"""
+    return """
+    <form action="/register" method="post">"
+        <label for="login">login:</label><br>
+        <input type="text" id="login" name="login"><br>
+        <label for="password">password:</label><br>
+        <input type="password" id="password" name="password"><br>
+        <label for="birth_date">birth_date:</label><br>
+        <input type="date" id="birth_date" name="birth_date"><br>
+        <label for="phone">phone:</label><br>
+        <input type="text" id="phone" name="phone"><br>
+        <input type="submit" value="Submit">
+    </form>
+    """
 
-@app.post('/register')
+# Маршрут та обробник для обробки даних форми реєстрації
+@app.route('/register', methods=['POST'])
 def new_user_register():
     form_data = request.form
-    insert_to_db(f'INSERT INTO user (login, password, birth_date, phone) VALUES ({form_data["login"]},{form_data["password"]},{form_data["birth_date"]},{form_data["phone"]}')
+    insert_to_db(f'INSERT INTO user (login, password, birth_date, phone) VALUES '
+                 f'("{form_data["login"]}", "{form_data["password"]}", "{form_data["birth_date"]}", "{form_data["phone"]}")')
     return f'user registered'
+
+
+@app.get('/register')
+def get_register():
+    return f'get register'
+
+@app.post('/register')
+def post_register():
+    return f'user registered'
+
+@app.get('/user')
+def get_user():
+    return f'get user'
+
+@app.post('/user')
+def post_user():
+    return f'post user'
+
+@app.put('/user')
+def put_user():
+    return f'put user'
+
+
 
 @app.post('/login')
 def user_login():
@@ -63,26 +86,13 @@ def user_login():
 def user_login_form():
     return 'please enter login'
 
+@app.get("/user/funds")
+def get_user_funds():
+    return f'get user funds'
 
-@app.get('/user')
-def add_user_info():
-    res = get_from_db(f'SELECT login, phone, birth_date FROM user WHERE id=1')
-    return {res}
-
-@app.post('/user')
-def user_info():
-    return f'user information '
-@app.put('/user')
-def user_update():
-    return f'user was successfully updated '
-
-
-@app.post('/funds')
-def add_funds():
-    return 'user account was funded'
-@app.get('/funds')
-def user_deposit():
-    return 'user deposit value'
+@app.post("/user/funds")
+def post_user_funds():
+    return f'post user funds'
 
 
 @app.post('/reservations')
@@ -151,17 +161,9 @@ def get_service(gym_id):  # put application's code here
     return f'fitness center {gym_id} service list'
 
 
-
-
-
-
 @app.get('/fitness_center/<gym_id>/services/<service_id> ')
 def get_service_info(gym_id, service_id):  # put application's code here
     return f'fitness center {gym_id} service {service_id} service list'
-
-
-
-
 
 
 
