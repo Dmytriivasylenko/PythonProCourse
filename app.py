@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, render_template, request, jsonify, redirect, url_for
 import sqlite3
 
 app = Flask(__name__)
@@ -10,167 +10,176 @@ def dict_factory(cursor, row):
         d[col[0]] = row[idx]
     return d
 
-# Функція для виконання запитів до бази даних та отримання результатів
-def get_from_db(query, many=True):
-    con = sqlite3.connect("db.db")
-    con.row_factory = dict_factory
-    cur = con.cursor()
-    cur.execute(query)
-    if many:
-        res = cur.fetchall()
-    else:
-        res = cur.fetchone()
-    con.close()
-    return res
+# Клас для роботи z SQLite
+class SQLiteDatabase:
+    def __init__(self, db_path):
+        self.db_path = db_path
+        self.connection = None
 
-# Функція для виконання запитів INSERT, UPDATE, DELETE до бази даних
-def insert_to_db(query):
-    con = sqlite3.connect("db.db")
-    cur = con.cursor()
-    cur.execute(query)
-    con.commit()
-    con.close()
+    def __enter__(self):
+        self.connection = sqlite3.connect(self.db_path)
+        self.connection.row_factory = dict_factory
+        return self
 
-# Маршрут та обробник для відображення форми реєстрації
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.connection:
+            self.connection.close()
+
+    def fetch_all(self, query, params=()):
+        cursor = self.connection.cursor()
+        cursor.execute(query, params)
+        res = cursor.fetchall()
+        return res if res else []
+
+    def fetch_one(self, query, params=()):
+        cursor = self.connection.cursor()
+        cursor.execute(query, params)
+        res = cursor.fetchone()
+        return res if res else None
+
+    def execute_query(self, query, params=()):
+        cursor = self.connection.cursor()
+        cursor.execute(query, params)
+        self.connection.commit()
+
+@app.route("/")
+def hello():
+    return render_template('index.html')
+
 @app.route('/register', methods=['GET'])
 def registered_form():
-    return """
-    <form action="/register" method="post">"
-        <label for="login">login:</label><br>
-        <input type="text" id="login" name="login"><br>
-        <label for="password">password:</label><br>
-        <input type="password" id="password" name="password"><br>
-        <label for="birth_date">birth_date:</label><br>
-        <input type="date" id="birth_date" name="birth_date"><br>
-        <label for="phone">phone:</label><br>
-        <input type="text" id="phone" name="phone"><br>
-        <input type="submit" value="Submit">
-    </form>
-    """
+    return render_template('register.html')
 
-# Маршрут та обробник для обробки даних форми реєстрації
 @app.route('/register', methods=['POST'])
 def new_user_register():
     form_data = request.form
-    insert_to_db(f'INSERT INTO user (login, password, birth_date, phone) VALUES '
-                 f'("{form_data["login"]}", "{form_data["password"]}", "{form_data["birth_date"]}", "{form_data["phone"]}")')
-    return f'user registered'
+    query = 'INSERT INTO user (login, password, birth_date, phone) VALUES (?, ?, ?, ?)'
+    with SQLiteDatabase("db.db") as db:
+        db.execute_query(query, (form_data["login"], form_data["password"], form_data["birth_date"], form_data["phone"]))
+    return 'User registered'
 
+@app.route('/user/<user_id>', methods=['GET', 'POST', 'PUT'])
+def get_user(user_id):
+    if request.method == 'POST':
+        form_data = request.form
+        query = 'UPDATE user SET login = ?, phone = ?, birth_date = ? WHERE id = ?'
+        with SQLiteDatabase("db.db") as db:
+            db.execute_query(query, (form_data["login"], form_data["phone"], form_data["birth_date"], user_id))
+        return 'User data modified'
+    elif request.method == 'PUT':
+        form_data = request.form
+        query = 'UPDATE user SET login = ?, phone = ?, birth_date = ? WHERE id = ?'
+        with SQLiteDatabase("db.db") as db:
+            db.execute_query(query, (form_data["login"], form_data["phone"], form_data["birth_date"], user_id))
+        return 'User info updated'
+    else:
+        with SQLiteDatabase("db.db") as db:
+            res = db.fetch_one('SELECT login, phone, birth_date FROM user WHERE id = ?', (user_id,))
+        return jsonify(res)
 
-@app.get('/register')
-def get_register():
-    return f'get register'
-
-@app.post('/register')
-def post_register():
-    return f'user registered'
-
-@app.get('/user')
-def get_user():
-    return f'get user'
-
-@app.post('/user')
-def post_user():
-    return f'post user'
-
-@app.put('/user')
-def put_user():
-    return f'put user'
-
-
+@app.route('/user', methods=['GET'])
+def get_users():
+    with SQLiteDatabase("db.db") as db:
+        res = db.fetch_all('SELECT * FROM user')
+    return render_template('user.html', user=res)
 
 @app.post('/login')
 def user_login():
-    return 'please sign in to login'
+    return 'Please sign in to login'
+
 @app.get('/login')
-def user_login_form():
-    return 'please enter login'
+def get_login():
+    res = get_from_db('SELECT * FROM user')
+    return res
 
-@app.get("/user/funds")
-def get_user_funds():
-    return f'get user funds'
-
-@app.post("/user/funds")
-def post_user_funds():
-    return f'post user funds'
-
-
-@app.post('/reservations')
+@app.route('/reservations', methods=['POST'])
 def user_reservation_info():
-    return 'user reservation info'
+    return 'User reservation info'
 
-@app.get('/reservations')
+@app.route('/reservations', methods=['GET'])
 def user_reservation_added():
-    return 'user reservations was added'
+    return 'User reservations was added'
 
-@app.get('/user/reservations/<reservation_id>')
-def reservation_info(reservation_id):  # put application's code here
-    return f' user reservations {reservation_id} '
-@app.put('/user/reservations/<reservation_id>/')
-def reservation_add(reservation_id):  # put application's code here
-    return f'user reservations {reservation_id} added'
-@app.delete('/user/reservations/<reservation_id>/')
-def reservation_update(reservation_id):  # put application's code here
-    return 'user reservations was updated {reservation_id}'
+@app.route('/user/reservations/<reservation_id>', methods=['GET'])
+def reservation_info(reservation_id):
+    with SQLiteDatabase("db.db") as db:
+        res = db.fetch_one('SELECT * FROM reservations WHERE id = ?', (reservation_id,))
+    return jsonify(res)
 
+@app.route('/user/reservations/<reservation_id>', methods=['PUT'])
+def reservation_add(reservation_id):
+    return f'User reservations {reservation_id} added'
 
-@app.get('/checkout')
-def user_checkout_info():  # put application's code here
-    return 'user balance info '
-@app.post('/checkout')
-def user_checkout_added():  # put application's code here
-    return 'user balance information added'
-@app.put('/checkout')
-def user_checkout_update():  # put application's code here
-    return 'balance was updated'
+@app.route('/user/reservations/<reservation_id>', methods=['DELETE'])
+def reservation_update(reservation_id):
+    return f'User reservations was updated {reservation_id}'
 
-@app.get('/fitness_center')
+@app.route('/checkout', methods=['GET'])
+def user_checkout_info():
+    return render_template('checkout.html')
+
+@app.route('/checkout', methods=['POST'])
+def user_checkout_added():
+    return 'User balance information added'
+
+@app.route('/checkout', methods=['PUT'])
+def user_checkout_update():
+    return 'Balance was updated'
+
+@app.route('/fitness_center', methods=['GET'])
 def user_select():
-    res = get_from_db('select name, adress from fitness_center', many=True)
-    return str(res)
+    with SQLiteDatabase("db.db") as db:
+        res = db.fetch_all('SELECT name, address, contacts FROM fitness_center')
+    return jsonify(res)
 
-@app.get('/fitness_center/<gym_id>')
-def user_reservation(gym_id):
-    res = get_from_db(f'select name, adress from fitness_center where id = {gym_id}', many=False)
-    return str(res)
-    # put application's code here
-
-
-@app.get('/fitness_center/<gym_id>/trainer')
-def get_trainers(gym_id):  # put application's code here
-    return f'fitness center {gym_id} trainers list'
-@app.get('/fitness_center/<gym_id>/trainer/<trainer_id>')
-def get_trainers_info(gym_id, trainer_id):  # put application's code here
-    return f'fitness center {gym_id} trainer {trainer_id} trainers list'
+@app.route('/fitness_center/<gym_id>', methods=['GET'])
+def get_fitness_center(gym_id):
+    with SQLiteDatabase("db.db") as db:
+        res = db.fetch_one('SELECT name, address FROM fitness_center WHERE id = ?', (gym_id,))
+    return jsonify(res)
 
 
-@app.get('/fitness_center/<gym_id>/trainer/<trainer_id>/rating ')
-def get_coach_rating(gym_id, trainer_id):  # put application's code here
-    return f'fitness center {gym_id} rating {trainer_id} '
-@app.post('/fitness_center/<gym_id>/trainer/<trainer_id>/rating ')
-def set_coach_rating(gym_id, trainer_id):  # put application's code here
-    return f'fitness center {gym_id} rating {trainer_id} rating was added'
-@app.put('/fitness_center/<gym_id>/trainer/<trainer_id>/rating ')
-def update_coach_score(gym_id, trainer_id):  # put application's code here
-    return f'fitness center {gym_id} rating {trainer_id} was updated'
+@app.route('/fitness_center/<gym_id>/trainer', methods=['GET'])
+def get_trainers(gym_id):
+    with SQLiteDatabase("db.db") as db:
+        res = db.fetch_all('SELECT id, name FROM trainer WHERE gym_id = ?', (gym_id,))
+    return render_template('trainer_review.html', trainers=res)
 
+@app.route('/fitness_center/<gym_id>/trainer/<trainer_id>', methods=['GET'])
+def get_trainers_info(gym_id, trainer_id):
+    with SQLiteDatabase("db.db") as db:
+        res = db.fetch_one('SELECT * FROM trainer WHERE gym_id = ? AND id = ?', (gym_id, trainer_id))
+    return jsonify(res)
 
+@app.route('/fitness_center/<gym_id>/trainer/<trainer_id>/rating', methods=['GET'])
+def get_coach_rating(gym_id, trainer_id):
+    return f'Fitness center {gym_id} rating {trainer_id}'
 
-@app.get('/fitness_center/<gym_id>/services')
-def get_service(gym_id):  # put application's code here
-    return f'fitness center {gym_id} service list'
+@app.route('/fitness_center/<gym_id>/trainer/<trainer_id>/rating', methods=['POST'])
+def set_coach_rating(gym_id, trainer_id):
+    return f'Fitness center {gym_id} rating {trainer_id} rating was added'
 
+@app.route('/fitness_center/<gym_id>/trainer/<trainer_id>/rating', methods=['PUT'])
+def update_coach_score(gym_id, trainer_id):
+    return f'Fitness center {gym_id} rating {trainer_id} was updated'
 
-@app.get('/fitness_center/<gym_id>/services/<service_id> ')
-def get_service_info(gym_id, service_id):  # put application's code here
-    return f'fitness center {gym_id} service {service_id} service list'
+@app.route('/fitness_center/<int:gym_id>/services', methods=['GET'])
+def get_service(gym_id):
+    with SQLiteDatabase("db.db") as db:
+        res = db.fetch_all('SELECT * FROM services WHERE gym_id = ?', (gym_id,))
+    return jsonify(res)
 
+@app.route('/fitness_center/<int:gym_id>/services/<int:service_id>', methods=['GET'])
+def get_service_info(gym_id, service_id):
+    with SQLiteDatabase("db.db") as db:
+        res = db.fetch_one('SELECT * FROM services WHERE gym_id = ? AND id = ?', (gym_id, service_id))
+    return jsonify(res)
 
-
-@app.get('/fitness_center/<gym_id>/loyality_programs  ')
-def user_information_program(gym_id):  # put application's code here
-    return f'fitness center {gym_id} loyalty program list'
-
+@app.route('/fitness_center/<gym_id>/loyality_programs', methods=['GET'])
+def user_information_program(gym_id):
+    with SQLiteDatabase("db.db") as db:
+        res = db.fetch_all('SELECT * FROM loyalty_programs WHERE gym_id = ?', (gym_id,))
+    return jsonify(res)
 
 if __name__ == '__main__':
     app.run()

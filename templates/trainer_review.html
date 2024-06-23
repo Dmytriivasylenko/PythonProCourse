@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trainers</title>
+</head>
+<body>
+    <h1>Trainers List</h1>
+    <ul>
+    {% for trainer in trainers %}
+        <li>
+            <a href="/fitness_center/{{ trainer.gym_id }}/trainer/{{ trainer.id }}/rating">
+                Trainer {{ trainer.name }}
+            </a>
+        </li>
+    {% endfor %}
+    </ul>
+</body>
+</html>
