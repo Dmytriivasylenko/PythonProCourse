@@ -47,6 +47,13 @@ class SQLiteDatabase:
             result = None
         self.connection.commit()
         return result
+#DODALEM
+    def commit(self):
+        try:
+            self.connection.commit()
+            print("Changes committed successfully.")
+        except sqlite3.Error as e:
+            print(f"Error committing changes: {e}")
 
 def check_credentials(login, password):
     query = 'SELECT * FROM user WHERE login = ? AND password = ?'
@@ -55,7 +62,7 @@ def check_credentials(login, password):
         return user is not None
 
 def select_method(self, table, condition=None, columns=None, fetch_all=True, join=None):
-    query = 'SELECT'
+    query = 'SELECT '
     if columns:
         query += ', '.join(columns)
     else:
@@ -82,8 +89,6 @@ def select_method(self, table, condition=None, columns=None, fetch_all=True, joi
 
     return result if result else None
 
-
-
 def login_required(func):
     def wrapper(*args, **kwargs):
         if session.get('user_id') is None:
@@ -95,9 +100,9 @@ def login_required(func):
 
 
 
-@app.route("/", methods=["GET", "POST", "PUT"])
+@app.route("/", methods=["GET"])
 def index():
-    return "current method:" + str(request.method)
+    return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def get_register():
@@ -111,7 +116,6 @@ def get_register():
     return render_template('register.html')
 
 @app.route('/user', methods=['GET'])
-@login_required
 def get_users():
     with SQLiteDatabase("db.db") as db:
         res = db.fetch_all('SELECT * FROM user')
@@ -123,13 +127,13 @@ def user_details(user_id):
         form_data = request.form
         query = 'UPDATE user SET login = ?, phone = ?, birth_date = ? WHERE id = ?'
         with SQLiteDatabase("db.db") as db:
-            res = db.execute_query(query, (["login", form_data], form_data["phone"], form_data["birth_date"], user_id))
+            res = db.execute_query(query, (form_data["login"], form_data["phone"], form_data["birth_date"], user_id))
         return redirect('get_users', user_id=res)
 
     with SQLiteDatabase("db.db") as db:
         res = db.fetch_one('SELECT login, phone, birth_date FROM user WHERE id = ?', (user_id,))
     return render_template('user_detail.html', user=res)
-@login_required
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -143,7 +147,7 @@ def login():
         else:
             return 'Invalid login or password'
     return render_template('login.html')
-@login_required
+
 @app.route('/logout', methods=['GET'])
 def logout():
     session.pop("user_id", None)
@@ -163,29 +167,28 @@ def get_user(user_id):
         return json(res)
 
 
-@login_required
 @app.route('/user/reservations', methods=['GET', 'POST'])
-def user_reservations():
-    if request.method == 'GET':
-        user_id = session.get('user_id', None)
-        if not user_id:
-            return redirect('login')  # перенаправлення на сторінку входу, якщо користувач не увійшов
-
-        with SQLiteDatabase('db.db') as db:
-            reservations = db.execute_query(
-                'reservations',
-                condition={'user_id': user_id},
-                columns=['id', 'details'],
-                fetch_all=True
-            )
-        return render_template('reservations.html', user_reservation=reservations)
-
-    elif request.method == 'POST':
-        return "create user reservation"
-
 @login_required
-@app.route('/user/reservations/<reservation_id>', methods=['GET', 'POST'])
-def user_reservation(reservation_id):
+def user_reservations():
+    user_id = session.get('user_id')
+    if request.method == 'POST':
+        details = request.form.get('details')
+        query = 'INSERT INTO reservations (user_id, details) VALUES (?, ?)'
+        with SQLiteDatabase('db.db') as db:
+            db.execute_query(query, (user_id, details))
+        return redirect('user_reservations')
+
+    with SQLiteDatabase('db.db') as db:
+        reservations = db.select_method(
+            'reservations',
+            condition={'user_id': user_id},
+            columns=['id', 'details'],
+            fetch_all=True
+        )
+    return render_template('reservations.html', user_reservation=reservations)
+
+@app.route('/user/reservations/<reservation_id>', methods=['GET', 'POST', 'DELETE'])
+def handle_reservation(reservation_id):
     if request.method == 'POST':
         new_date = request.form.get('new_date')
         new_time = request.form.get('new_time')
@@ -199,19 +202,16 @@ def user_reservation(reservation_id):
 
         return redirect('user_reservations')
 
+    elif request.method == 'DELETE':
+        query = 'DELETE FROM reservations WHERE id=?'
+        with SQLiteDatabase('db.db') as db:
+            db.execute_query(query, (reservation_id,))
+        return f'Reservation {reservation_id} deleted successfully'
+
     with SQLiteDatabase("db.db") as db:
         res = db.fetch_one('SELECT * FROM reservations WHERE id = ?', (reservation_id,))
     return render_template('reservation_detail.html', reservation=res)
 
-@login_required
-@app.route('/user/reservations/<reservation_id>/delete', methods=['POST'])
-def delete_reservation(reservation_id):
-    query = 'DELETE FROM reservations WHERE id=?'
-    with SQLiteDatabase('db.db') as db:
-        db.execute_query(query, (reservation_id,))
-    return redirect('user_reservations')
-
-@login_required
 @app.route('/fitness_center/<gym_id>/trainer/<trainer_id>/rating', methods=['GET', 'POST'])
 def trainer_rating(gym_id, trainer_id):
     user_id = session.get('user_id')
@@ -224,7 +224,7 @@ def trainer_rating(gym_id, trainer_id):
                 (trainer_id, gym_id, user_id, rating, review_text)
             )
         return redirect('trainer_rating', gym_id=gym_id, trainer_id=trainer_id)
-#отримати відгук який дав користувач і заповни ім форму додатковий запит на відгук користувача
+
     with SQLiteDatabase("db.db") as db:
         reviews = db.select_method(
             'review',
@@ -234,19 +234,19 @@ def trainer_rating(gym_id, trainer_id):
             fetch_all=True
         )
     return render_template('trainer_rating.html', reviews=reviews, gym_id=gym_id, trainer_id=trainer_id)
-@login_required
+
 @app.route('/fitness_center', methods=['GET'])
-def fitness_center():
+def fitness_centers():
     with SQLiteDatabase("db.db") as db:
-        res = db.fetch_all('SELECT id, name, adress, contacts FROM fitness_center')
-    return render_template('fitness_center.html', fitness_center=res)
+        centers = db.fetch_all('SELECT id, name, address, contacts FROM fitness_center')
+    return render_template('fitness_center.html', fitness_centers=centers)
 
 @app.route('/fitness_center/<gym_id>', methods=['GET'])
 def get_fitness_center(gym_id):
     with SQLiteDatabase("db.db") as db:
         center = db.fetch_one('SELECT id, name, address FROM fitness_center WHERE id = ?', (gym_id,))
     return render_template('fitness_center_id.html', fitness_center=center)
-@login_required
+
 @app.route('/fitness_center/<gym_id>/trainer', methods=['GET'])
 def get_trainers(gym_id):
     with SQLiteDatabase("db.db") as db:
@@ -288,4 +288,21 @@ def user_checkout_update():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
+
+
+
+def commit(self, table, data):
+    keys = list(data.keys())
+    values = list(data.values())
+    placeholders = ','.join(['?' for _ in values])
+    query = f'INSERT INTO {table} ({", ".join(keys)}) VALUES ({placeholders})'
+    try:
+        cursor = self.connection.cursor()
+        cursor.execute(query, values)
+        self.connection.commit()
+        print(f"Inserted data into {table} successfully.")
+    except sqlite3.Error as e:
+        print(f"Error inserting data into {table}: {e}")
+    finally:
+            cursor.close()

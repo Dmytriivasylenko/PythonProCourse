@@ -1,20 +1,51 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
+    <title>User Registration</title>
+    <style>
+        form {
+            width: 50%;
+            margin: 0 auto;
+        }
+        input[type=text], input[type=password], input[type=date], input[type=tel] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            box-sizing: border-box;
+        }
+        input[type=submit] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+        input[type=submit]:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <form action="/register" method="post">
-        <label for="login">Login:</label><br>
-        <input type="text" id="login" name="login"><br>
-        <label for="password">Password:</label><br>
-        <input type="password" id="password" name="password"><br>
-        <label for="birth_date">Birth Date:</label><br>
-        <input type="date" id="birth_date" name="birth_date"><br>
-        <label for="phone">Phone:</label><br>
-        <input type="text" id="phone" name="phone"><br>
-        <input type="submit" value="Submit">
+    <h1>User Registration</h1>
+    <form action="/register" method="POST">
+        <label for="login">Login</label>
+        <input type="text" id="login" name="login" required>
+
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+
+        <label for="birth_date">Birth Date</label>
+        <input type="date" id="birth_date" name="birth_date" required>
+
+        <label for="phone">Phone Number</label>
+        <input type="tel" id="phone" name="phone" pattern="[0-9]{3}-[0-9]{2}-[0-9]{3}" required>
+        <small>Format: 123-45-678</small>
+
+        <input type="submit" value="Register">
     </form>
-</body
+</body>
+</html>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trainer Ratings</title>
+</head>
+<body>
+    <h1>Trainer Ratings</h1>
+    <ul>
+        {% for review in reviews %}
+            <li>{{ review.trainer_name }}: {{ review.review_text }} - {{ review.review_rating }} stars by {{ review.user_login }}</li>
+        {% endfor %}
+    </ul>
+    <form action="/fitness_center/{{ gym_id }}/trainer/{{ trainer_id }}/rating" method="post">
+        <label for="rating">Rating:</label>
+        <input type="number" id="rating" name="rating" min="1" max="5"><br>
+        <label for="review">Review:</label>
+        <textarea id="review" name="review" ></textarea><br>
+        <button type="submit">Submit Review</button>
+    </form>
+    <a href="/fitness_center/{{ gym_id }}/trainer">Back to trainers list</a>
+</body>
+</html>

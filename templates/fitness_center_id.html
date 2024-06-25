@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fitness Center Details</title>
+</head>
+<body>
+    <h1>{{ fitness_center.name }}</h1>
+    <p>Address: {{ fitness_center.address }}</p>
+    <a href="/fitness_center/{{ fitness_center.id }}/trainer">View Trainers</a><br>
+    <a href="/fitness_center/{{ fitness_center.id }}/services">View Services</a><br>
+    <a href="/fitness_center/{{ fitness_center.id }}/loyalty_programs">View Loyalty Programs</a><br>
+    <a href="/fitness_center">Back to fitness centers list</a>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Funds</title>
+</head>
+<body>
+    <h1>User Funds</h1>
+    <p>Current Funds: {{ user_funds['amount'] }}</p>
+
+    <form action="{{ url_for('user_funds') }}" method="POST">
+        <label for="amount">New Amount:</label>
+        <input type="text" id="amount" name="amount" required>
+        <button type="submit">Update</button>
+    </form>
+</body>
+</html>

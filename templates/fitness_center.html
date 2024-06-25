@@ -3,46 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User List</title>
+    <title>Fitness Centers</title>
     <style>
+        /* Basic CSS for styling */
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 20px;
         }
         th, td {
-            border: 1px solid #ddd;
             padding: 8px;
             text-align: left;
+            border-bottom: 1px solid #ddd;
         }
         th {
             background-color: #f2f2f2;
         }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
         tr:hover {
-            background-color: #ddd;
+            background-color: #f5f5f5;
         }
     </style>
 </head>
 <body>
-    <h1>User List</h1>
+    <h2>Fitness Centers</h2>
     <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Login</th>
-                <th>Birth Date</th>
-                <th>Phone</th>
+                <th>Name</th>
+                <th>Address</th>
+                <th>Contacts</th>
             </tr>
         </thead>
         <tbody>
-            {% for user in users %}
+            {% for center in fitness_center %}
             <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.login }}</td>
-                <td>{{ user.birth_date }}</td>
-                <td>{{ user.phone }}</td>
+                <td>{{ center.id }}</td>
+                <td>{{ center.name }}</td>
+                <td>{{ center.address }}</td>
+                <td>{{ center.contacts }}</td>
             </tr>
             {% endfor %}
         </tbody>

@@ -1,0 +1,17 @@
+<!-- update_reservation.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Reservation</title>
+</head>
+<body>
+    <h1>Update Reservation</h1>
+    <form action="/user/reservations/{{ reservation_id }}" method="POST">
+        <label for="new_date">New Date:</label><br>
+        <input type="date" id="new_date" name="new_date"><br>
+        <label for="new_time">New Time:</label><br>
+        <input type="time" id="new_time" name="new_time"><br>
+        <input type="submit" value="Update">
+    </form>
+</body>
+</html>

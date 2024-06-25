@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Trainers</title>
+</head>
+<body>
+    <h1>Trainers</h1>
+    <ul>
+        {% for trainer in trainers %}
+            <li>{{ trainer.name }} - <a href="/fitness_center/{{ gym_id }}/trainer/{{ trainer.id }}">View Reviews</a></li>
+        {% endfor %}
+    </ul>
+    <a href="/fitness_center/{{ gym_id }}">Back to fitness center</a>
+</body>
+</html>

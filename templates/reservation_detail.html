@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reservation Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input[type="text"], input[type="date"], input[type="time"], input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Деталі резервації</h1>
+    <form method="POST">
+        <label for="new_date">New Date:</label>
+        <input type="date" id="new_date" name="new_date" value="{{ reservation.date }}" required>
+
+        <label for="new_time">New Time:</label>
+        <input type="time" id="new_time" name="new_time" value="{{ reservation.time }}" required>
+
+        <input type="submit" value="Update">
+    </form>
+    <form method="POST" action="/user/reservations/{{ reservation.id }}/delete">
+        <input type="submit" class="delete-btn" value="Delete">
+    </form>
+</body>
+</html>

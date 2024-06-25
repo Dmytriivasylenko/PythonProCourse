@@ -1,11 +1,63 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Index</title>
+    <title>Welcome to Fitness Center</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+        }
+        nav {
+            text-align: center;
+            margin-top: 20px;
+        }
+        nav a {
+            text-decoration: none;
+            color: #333;
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: 1px solid #333;
+            border-radius: 5px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        nav a:hover {
+            background-color: #333;
+            color: white;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to.... home page.</h1>
+    <header>
+        <h1>Welcome to Fitness Center</h1>
+    </header>
+    <nav>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+        <a href="/user">User Dashboard</a>
+        <a href="/fitness_center">Fitness Center</a>
+    </nav>
+    <div class="container">
+        <h2>About Us</h2>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla convallis libero velit, at dignissim ex ullamcorper vel. Nullam sit amet sollicitudin est. Quisque sit amet iaculis eros, vitae posuere arcu. Fusce tristique nulla vitae nisl consectetur, vel mattis metus iaculis.</p>
+        <p>Suspendisse potenti. Nunc at congue justo. Proin ut nunc id justo efficitur rhoncus in vitae ipsum. Vivamus ut arcu non orci cursus aliquet non in nulla.</p>
+    </div>
 </body>
 </html>
