@@ -2,15 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Trainers</title>
+    <title>Trainer Page</title>
 </head>
 <body>
-    <h1>Trainers</h1>
-    <ul>
-        {% for trainer in trainers %}
-            <li>{{ trainer.name }} - <a href="/fitness_center/{{ gym_id }}/trainer/{{ trainer.id }}">View Reviews</a></li>
-        {% endfor %}
-    </ul>
-    <a href="/fitness_center/{{ gym_id }}">Back to fitness center</a>
+    <h1>Select a Service and Date</h1>
+    <form method="POST" action="/trainer/reservation">
+        <label for="service">Service:</label>
+        <select name="service" id="service" required>
+            {% for service in services %}
+                <option value="{{ service.id }}">{{ service.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="date">Date:</label>
+        <input type="date" name="desired_date" id="date" required>
+        <input type="hidden" name="trainer" value="{{ trainer_id }}">
+        <input type="submit" value="Next">
+    </form>
 </body>
 </html>

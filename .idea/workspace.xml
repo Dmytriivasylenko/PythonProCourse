@@ -5,14 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e0887bcb-b029-48b6-9b65-b5be1ba482af" name="Changes" comment="fitness">
-      <change afterPath="$PROJECT_DIR$/templates/add_shedule.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/shedule.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/dataSources.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sqldialects.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sqldialects.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/pre_reservation.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/services.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/services.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/trainers.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/trainers.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,7 +74,7 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "DefaultHtmlFileTemplate": "HTML File",
-    "Flask server.Flask (app.py).executor": "Run",
+    "Flask server.Flask (app.py).executor": "Debug",
     "Flask server.PythonProCourse.executor": "Run",
     "HTTP Request.All in request.method.executor": "Run",
     "HTTP Request.request.method | #1.executor": "Run",
@@ -90,7 +89,7 @@
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "advanced.settings",
+    "settings.editor.selected.configurable": "settings.sync",
     "vue.rearranger.settings.migration": "true"
   },
   "keyToStringList": {
@@ -99,7 +98,7 @@
     ]
   }
 }]]></component>
-  <component name="RunManager" selected="Python.utils">
+  <component name="RunManager" selected="Flask server.Flask (app.py)">
     <configuration name="All in request.method" type="HttpClient.HttpRequestRunConfigurationType" factoryName="HTTP Request" temporary="true" path="$PROJECT_DIR$/request.method.http">
       <method v="2" />
     </configuration>
@@ -176,8 +175,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.utils" />
         <item itemvalue="Flask server.Flask (app.py)" />
+        <item itemvalue="Python.utils" />
         <item itemvalue="HTTP Request.All in request.method" />
         <item itemvalue="HTTP Request.request_method | #1" />
       </list>
@@ -236,7 +235,12 @@
       <workItem from="1719779639674" duration="9846000" />
       <workItem from="1719858178863" duration="5896000" />
       <workItem from="1719866600330" duration="123000" />
-      <workItem from="1719866764776" duration="3740000" />
+      <workItem from="1719866764776" duration="4692000" />
+      <workItem from="1719951073262" duration="9523000" />
+      <workItem from="1720039647218" duration="3226000" />
+      <workItem from="1720369799210" duration="9888000" />
+      <workItem from="1720379880774" duration="12885000" />
+      <workItem from="1720426531200" duration="2321000" />
     </task>
     <task id="LOCAL-00001" summary="fitness">
       <option name="closed" value="true" />
@@ -294,7 +298,15 @@
       <option name="project" value="LOCAL" />
       <updated>1719146415989</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="fitness">
+      <option name="closed" value="true" />
+      <created>1719870930768</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1719870930768</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -322,9 +334,20 @@
     <MESSAGE value="fitness" />
     <option name="LAST_COMMIT_MESSAGE" value="fitness" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <default-breakpoints>
+        <breakpoint type="python-exception">
+          <properties notifyOnTerminate="true" exception="BaseException">
+            <option name="notifyOnTerminate" value="true" />
+          </properties>
+        </breakpoint>
+      </default-breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/PythonProCourse$utils.coverage" NAME="utils Coverage Results" MODIFIED="1719870201489" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PythonProCourse$utils.coverage" NAME="utils Coverage Results" MODIFIED="1720427139737" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/PythonProCourse$PythonProCourse.coverage" NAME="PythonProCourse Coverage Results" MODIFIED="1719354256309" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/PythonProCourse$Flask__app_py_.coverage" NAME="Flask (app.py) Coverage Results" MODIFIED="1719868604342" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/PythonProCourse$Flask__app_py_.coverage" NAME="Flask (app.py) Coverage Results" MODIFIED="1720428859019" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -1,4 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset>
+    <meta charset="UTF-8">
+    <title>Service Page</title>
+</head>
+<body>
+    <h1>Select a Trainer and Date</h1>
+    <form method="POST" action="/service/reservation">
+        <label for="trainer">Trainer:</label>
+        <select name="trainer" id="trainer" required>
+            {% for trainer in trainers %}
+                <option value="{{ trainer.id }}">{{ trainer.name }}</option>
+            {% endfor %}
+        </select>
+        <label for="date">Date:</label>
+        <input type="date" name="desired_date" id="date" required>
+        <input type="hidden" name="service" value="{{ service_id }}">
+        <input type="submit" value="Next">
+    </form>
+</body>
+</html>
