@@ -2,8 +2,7 @@ import os
 
 from flask import Flask, render_template, request, redirect, session
 
-import utils
-from utils import SQLiteDatabase
+from utils import SQLiteDatabase, check_credentials, calc_slots
 
 app = Flask(__name__)
 app.secret_key = b'_343435#y2L"F4Q8z\n\xec]/'
@@ -18,9 +17,12 @@ def login_required(func):
 
     return wrapper
 
-@app.route("/", methods=["GET", "POST", "PUT"])
+
+
+
+@app.route("/", methods=["GET", "POST"])
 def index():
-    return "current method:" + str(request.method)
+    return  render_template("index.html")
 
 @app.route('/register', methods=['GET', 'POST'])
 def get_register():
@@ -40,9 +42,13 @@ def get_register():
 @login_required
 @app.route('/user', methods=['GET'])
 def get_users():
+    if "user_id" not in session:
+        return redirect('/login')
     with SQLiteDatabase("db.db") as db:
+        trainer = db.fetch_all("SELECT * FROM trainer")
+        service = db.fetch_all("SELECT * FROM service")
         res = db.fetch_all('SELECT * FROM user')
-    return render_template('user.html', users=res)
+    return render_template('user_dashboard.html', trainers=trainer, services=service)
 
 @app.route('/user/<user_id>', methods=['GET', 'POST'])
 def user_details(user_id):
@@ -60,11 +66,11 @@ def user_details(user_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        login= request.form['login']
+        login = request.form['login']
         password = request.form['password']
-        if utils.check_credentials(login, password):
+        if check_credentials(login, password):
             with SQLiteDatabase("db.db") as db:
-                user = db.execute_query('SELECT * FROM user WHERE login = ?', ('login',), fetch_one=True)
+                user = db.fetch_one('SELECT * FROM user WHERE login = ?', (login,))
             if user:
                 session['user_id'] = user['id']
                 return redirect('/user')
@@ -73,12 +79,54 @@ def login():
         else:
             return 'Invalid login or password'
     return render_template('login.html')
+
+
+
+
+@app.route('/choose_service_date', methods=['POST'])
+def choose_service_date():
+    trainer_id = request.form['trainer']
+    service_id = request.form['service']
+    desired_date = request.form['date']
+    time_slots = calc_slots(trainer_id, service_id, desired_date)
+    return render_template('pre_reservation.html', form_info={
+        "trainer": trainer_id,
+        "service": service_id,
+        "desired_date": desired_date,
+        "time_slots": time_slots
+    })
+
+@app.route('/choose_trainer_date', methods=['POST'])
+def choose_trainer_date():
+    trainer_id = request.form['trainer']
+    service_id = request.form['service']
+    desired_date = request.form['date']
+    time_slots = calc_slots(trainer_id, service_id, desired_date)
+    return render_template('pre_reservation.html', form_info={
+        "trainer": trainer_id,
+        "service": service_id,
+        "desired_date": desired_date,
+        "time_slots": time_slots
+    })
+
+@app.route('/make_reservation', methods=['POST'])
+def make_reservation():
+    trainer_id = request.form['trainer']
+    service_id = request.form['service']
+    desired_date = request.form['desired_date']
+    selected_time = request.form['time']
+
+    with SQLiteDatabase('db.db') as db:
+        db.execute_query('INSERT INTO reservation (trainer_id, service_id, date, time, user_id) VALUES (?, ?, ?, ?, ?)',
+                         (trainer_id, service_id, desired_date, selected_time, session['user_id']))
+
+    return redirect('/user')
+
 @app.route('/user')
 def user_dashboard():
     if 'user_id' not in session:
         return redirect('/login')
     return f"Welcome user with ID {session['user_id']}"
-
 @login_required
 @app.route('/logout', methods=['GET'])
 def logout():
@@ -195,19 +243,19 @@ def get_fitness_center(gym_id):
 def get_trainers(gym_id):
     with SQLiteDatabase("db.db") as db:
         trainers = db.fetch_all('SELECT id, name FROM trainer WHERE gym_id = ?', (gym_id,))
-    return render_template('trainers.html', trainers=trainers, gym_id=gym_id)
+    return render_template('trainer.html', trainers=trainers, gym_id=gym_id)
 
 @app.route('/fitness_center/<int:gym_id>/services', methods=['GET'])
 def get_services(gym_id):
     with SQLiteDatabase("db.db") as db:
         services = db.fetch_all('SELECT * FROM services WHERE gym_id = ?', (gym_id,))
-    return render_template('services.html', services=services)
+    return render_template('service.html', services=services)
 
 @app.route('/fitness_center/<int:gym_id>/services/<int:service_id>', methods=['GET'])
 def get_service_info(gym_id, service_id):
     with SQLiteDatabase("db.db") as db:
         service = db.fetch_one('SELECT * FROM services WHERE gym_id = ? AND id = ?', (gym_id, service_id))
-    return render_template('services.html', service=service)
+    return render_template('service.html', service=service)
 
 
 @app.route('/fitness_center/<gym_id>/loyalty_programs', methods=['GET'])
@@ -253,20 +301,18 @@ def add_shedule():
 
     return render_template('add_shedule.html')
 
-
 @login_required
 @app.route('/pre_reservation', methods=['POST'])
 def pre_reservation():
-        trainer = request.form["trainer"]
-        service = request.form["service"]
-        desired_date = request.form["desired_date"]
+    trainer = request.form["trainer"]
+    service = request.form["service"]
+    desired_date = request.form["desired_date"]
 
-        utils.clac_slots(trainer, service, desired_date)
-        return render_template('pre_reservation.html', form_info = {"trainer":trainer,
-                                                                    "service": service,
-                                                                    "desired_date": desired_date,
-                                                                    "time_slots": time_slots})
-
+    time_slots = calc_slots(trainer, service, desired_date)
+    return render_template('pre_reservation.html', form_info={"trainer": trainer,
+                                                              "service": service,
+                                                              "desired_date": desired_date,
+                                                              "time_slots": time_slots})
 
 if __name__ == '__main__':
     app.run(debug=True)
