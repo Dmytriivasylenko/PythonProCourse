@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, User!</h1>
+    <h2>Choose a Trainer and Service</h2>
+    <form action="/choose_service_date" method="post">
+        <label for="trainer">Trainer:</label>
+        <select name="trainer" id="trainer">
+            {% for trainer in trainer %}
+            <option value="{{ trainer.id }}">{{ trainer.name }}</option>
+            {% endfor %}
+        </select><br>
+        <label for="service">Service:</label>
+        <select name="service" id="service">
+            {% for service in services %}
+            <option value="{{ service.id }}">{{ service.name }}</option>
+            {% endfor %}
+        </select><br>
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date"><br>
+        <input type="submit" value="Next">
+    </form>
+</body>
+</html>

@@ -2,14 +2,69 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fitness Center Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .error {
+            color: #e74c3c;
+        }
+        .info {
+            color: #2c3e50;
+        }
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            color: white;
+            background-color: #3498db;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+        .btn:hover {
+            background-color: #2980b9;
+        }
+    </style>
 </head>
 <body>
-    <h1>{{ fitness_center.name }}</h1>
-    <p>Address: {{ fitness_center.address }}</p>
-    <a href="/fitness_center/{{ fitness_center.id }}/trainer">View Trainers</a><br>
-    <a href="/fitness_center/{{ fitness_center.id }}/services">View Services</a><br>
-    <a href="/fitness_center/{{ fitness_center.id }}/loyalty_programs">View Loyalty Programs</a><br>
-    <a href="/fitness_center">Back to fitness centers list</a>
+    <div class="container">
+        {% if fitness_center %}
+            <h1>Fitness Center Details</h1>
+            <p class="info"><strong>ID:</strong> {{ fitness_center.id }}</p>
+            <p class="info"><strong>Name:</strong> {{ fitness_center.name }}</p>
+            <p class="info"><strong>Address:</strong> {{ fitness_center.address }}</p>
+            <a href="/" class="btn">Back to Home</a>
+        {% else %}
+            <h1>Not Found</h1>
+            <p class="error">No fitness center found with the provided ID.</p>
+            <a href="/" class="btn">Back to Home</a>
+        {% endif %}
+    </div>
 </body>
 </html>

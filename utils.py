@@ -1,9 +1,9 @@
 import datetime
-
-from datetime import datetime
-
 import sqlite3
-
+from datetime import datetime
+import database
+import models
+from sqlalchemy.orm import joinedload
 
 def dict_factory(cursor, row):
     d = {}
@@ -19,7 +19,7 @@ class SQLiteDatabase:
 
     def __enter__(self):
         self.conn = sqlite3.connect(self.db_name)
-        self.conn.row_factory = sqlite3.Row  # Це дозволить повертати рядки як словники
+        self.conn.row_factory = sqlite3.Row  #повертати рядки як словники
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -43,11 +43,13 @@ class SQLiteDatabase:
         cursor = self.execute_query(query, params)
         return cursor.fetchone()
 
-def check_credentials(login, password):
-    query = 'SELECT * FROM user WHERE login = ? AND password = ?'
-    with SQLiteDatabase('db.db') as db:
-        user = db.fetch_one(query, (login, password))
-        return user is not None
+
+
+def check_credentials(username, password):
+    database.init_db()
+    user = database.db_session.query(models.User).options(joinedload('*')).filter_by(login=username, password=password).first()
+    return user
+
 
 
 def select_method(self, table, condition=None, columns=None, fetch_all=True, join=None):

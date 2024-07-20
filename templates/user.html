@@ -4,48 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User List</title>
-    <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        tr:hover {
-            background-color: #ddd;
-        }
-    </style>
 </head>
 <body>
-    <h1>User List</h1>
-    <table>
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Login</th>
-                <th>Birth Date</th>
-                <th>Phone</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.id }}</td>
-                <td>{{ user.login }}</td>
-                <td>{{ user.birth_date }}</td>
-                <td>{{ user.phone }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <h2>User List</h2>
+    <ul>
+        {% for user in users %}
+            <li>{{ user.login }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Register New User</h2>
+    <form method="POST">
+        <label for="login">Login:</label><br>
+        <input type="text" id="login" name="login" required><br><br>
+
+        <label for="password">Password:</label><br>
+        <input type="password" id="password" name="password" required><br><br>
+
+        <label for="birth_date">Birth Date:</label><br>
+        <input type="date" id="birth_date" name="birth_date"><br><br>
+
+        <label for="phone">Phone:</label><br>
+        <input type="text" id="phone" name="phone"><br><br>
+
+        <input type="submit" value="Register">
+    </form>
 </body>
 </html>

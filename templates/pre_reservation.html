@@ -2,21 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Choose a Time Slot</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Time Slot</title>
 </head>
 <body>
-    <h1>Choose a Time Slot</h1>
-    <form method="POST" action="/user/reservation">
-        <input hidden="trainer"   value="{{ form_info["trainer"] }}">
-       <input hidden="service"   value="{{ form_info["service"] }}">
-        <input hidden="date"   value="{{ form_info["desired_date"] }}">
-        <label for="slots">Choose a time:</label>
-        <select name="slots" id="slots">
-            {% for time in form_info["time_slots"] %}
-                <option value="{{ t }}">{{ t }}</option>
+    <h1>Choose Time Slot</h1>
+    <p>Trainer: {{ form_info.trainer }}</p>
+    <p>Service: {{ form_info.service }}</p>
+    <p>Date: {{ form_info.desired_date }}</p>
+    <form action="/make_reservation" method="post">
+        <input type="hidden" name="trainer" value="{{ form_info.trainer }}">
+        <input type="hidden" name="service" value="{{ form_info.service }}">
+        <input type="hidden" name="desired_date" value="{{ form_info.desired_date }}">
+        <label for="time">Available Time Slots:</label>
+        <select name="time" id="time">
+            {% for time in form_info.time_slots %}
+            <option value="{{ time }}">{{ time }}</option>
             {% endfor %}
-        </select>
-        <input type="submit">
+        </select><br>
+        <input type="submit" value="Reserve">
     </form>
 </body>
 </html>

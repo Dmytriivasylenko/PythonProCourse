@@ -2,52 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ВХІД</title>
-    <!-- Підключення Bootstrap CSS -->
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #f8f9fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .login-container {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-        }
-        .login-title {
-            margin-bottom: 30px;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .btn-primary {
-            width: 100%;
-        }
-    </style>
+    <title>Login</title>
 </head>
 <body>
-    <div class="login-container">
-        <h2 class="login-title text-center">Вхід</h2>
-        <form action="/login" method="POST">
-            <div class="form-group">
-                <label for="login">Login:</label>
-                <input type="text" class="form-control" id="login" name="login" required>
-            </div>
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Ввійти</button>
-        </form>
-    </div>
-
+    <h1>Login</h1>
+    <form action="/login" method="post">
+        <label for="login">Login:</label>
+        <input type="text" id="login" name="login"><br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br>
+        <input type="submit" value="Login">
+    </form>
 </body>
 </html>
