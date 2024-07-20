@@ -175,11 +175,10 @@ def select_trainer_service():
         desired_date = request.form['date']
 
         return redirect('/choose_trainer_date', trainer_id=trainer_id, service_id=service_id, desired_date=desired_date)
-
-    # Отримання списків тренерів і сервісів
+#отримуємо списки тренерів
     trainers = database.db_session.query(Trainer).all()
     services = database.db_session.query(Service).all()
-    return render_template('select_trainer_service.html', trainers=trainers, services=services)
+    return render_template('select_trainer_service.html', trainer=trainers, service=services)
 
 
 @app.route('/choose_service_date', methods=['POST'])
@@ -234,7 +233,6 @@ def trainer_rating(gym_id, trainer_id):
         rating = request.form.get('rating')
         review_text = request.form.get('review')
 
-        # Додати рецензію
         new_review = Review(
             trainer_id=trainer_id,
             gym_id=gym_id,
@@ -272,23 +270,19 @@ def fitness_center():
 @app.route('/fitness_center/<int:gym_id>', methods=['GET'])
 def get_fitness_center(gym_id):
     try:
-        # Отримання фітнес-центру за допомогою SQLAlchemy
         center = database.db_session.query(FitnessCenter).filter(FitnessCenter.id == gym_id).one()
         return render_template('fitness_center_id.html', fitness_center=center)
     except NoResultFound:
-        # Обробка випадку, коли фітнес-центр не знайдено
-        return "Fitness center not found", 404
+        return "Fitness center not found"
 
 @login_required
 @app.route('/fitness_center/<int:gym_id>/trainer', methods=['GET'])
 def get_trainers(gym_id):
     try:
-        # Отримання тренерів за допомогою SQLAlchemy
         trainers = database.db_session.query(Trainer).filter(Trainer.gym_id == gym_id).all()
         return render_template('trainer.html', trainers=trainers, gym_id=gym_id)
     except NoResultFound:
-        # Обробка випадку, коли тренери не знайдено
-        return "No trainers found for this gym", 404
+        return "No trainers found for this gym"
 
 @app.route('/fitness_center/<int:gym_id>/services', methods=['GET'])
 def get_services(gym_id):
@@ -303,12 +297,10 @@ def get_services(gym_id):
 @app.route('/fitness_center/<int:gym_id>/services/<int:service_id>', methods=['GET'])
 def get_service_info(gym_id, service_id):
     try:
-        # Отримання послуги за допомогою SQLAlchemy
         service = database.db_session.query(Service).filter(Service.gym_id == gym_id, Service.id == service_id).one()
         return render_template('service_info.html', service=service)
     except NoResultFound:
-        # Обробка випадку, коли послугу не знайдено
-        return "Service not found", 404
+        return "Service not found"
 
 
 
@@ -317,12 +309,10 @@ def get_service_info(gym_id, service_id):
 @app.route('/fitness_center/<int:gym_id>/loyalty_programs', methods=['GET'])
 def get_loyalty_programs(gym_id):
     try:
-        # Отримання програм лояльності за допомогою SQLAlchemy
         programs = database.db_session.query(LoyaltyProgram).filter(LoyaltyProgram.gym_id == gym_id).all()
         return render_template('loyalty_programs.html', loyalty_programs=programs)
     except NoResultFound:
-        # Обробка випадку, коли програми лояльності не знайдено
-        return "No loyalty programs found for this gym", 404
+        return "No loyalty programs found for this gym"
 
 @app.route('/checkout', methods=['GET', "POST"])
 def user_checkout_info():
