@@ -2,12 +2,11 @@ import os
 
 from flask import Flask, render_template, request, redirect, session
 from sqlalchemy.exc import NoResultFound, IntegrityError
-from sqlalchemy.orm import joinedload
-
 
 import database
-from models import Reservation, FitnessCenter, Trainer, Service, Review, User, LoyaltyProgram
-from utils import SQLiteDatabase, check_credentials, calc_slots, models
+import models
+from models import Reservation, FitnessCenter, Trainer, Service, Review
+from utils import SQLiteDatabase, check_credentials, calc_slots
 
 app = Flask(__name__)
 app.secret_key = b'_343435#y2L"F4Q8z\n\xec]/'
@@ -183,8 +182,8 @@ def select_trainer_service():
 
 @app.route('/choose_service_date', methods=['POST'])
 def choose_service_date():
-    trainer_id = request.form['trainer']
-    service_id = request.form['service']
+    trainer_id = request.form['trainer'],
+    service_id = request.form['service'],
     desired_date = request.form['date']
     time_slots = calc_slots(trainer_id, service_id, desired_date)
     return render_template('pre_reservation.html', form_info={
@@ -246,10 +245,10 @@ def trainer_rating(gym_id, trainer_id):
 
 #opinia
     reviews = database.db_session.query(Review, Trainer.name.label('trainer_name'), FitnessCenter.name.label('gym_name'),
-                                        User.login.label('user_login')) \
+                                        models.User.login.label('user_login')) \
         .join(Trainer, Trainer.id == Review.trainer_id) \
         .join(FitnessCenter, FitnessCenter.id == Review.gym_id) \
-        .join(User, User.id == Review.user_id) \
+        .join(models.User, models.User.id == Review.user_id) \
         .filter(Review.trainer_id == trainer_id, Review.gym_id == gym_id) \
         .all()
 
@@ -287,12 +286,10 @@ def get_trainers(gym_id):
 @app.route('/fitness_center/<int:gym_id>/services', methods=['GET'])
 def get_services(gym_id):
     try:
-        # Отримання послуг за допомогою SQLAlchemy
         services = database.db_session.query(Service).filter(Service.gym_id == gym_id).all()
         return render_template('service.html', services=services)
     except NoResultFound:
-        # Обробка випадку, коли послуги не знайдено
-        return "No services found for this gym", 404
+        return "No services found for this gym"
 
 @app.route('/fitness_center/<int:gym_id>/services/<int:service_id>', methods=['GET'])
 def get_service_info(gym_id, service_id):
@@ -306,13 +303,7 @@ def get_service_info(gym_id, service_id):
 
 
 
-@app.route('/fitness_center/<int:gym_id>/loyalty_programs', methods=['GET'])
-def get_loyalty_programs(gym_id):
-    try:
-        programs = database.db_session.query(LoyaltyProgram).filter(LoyaltyProgram.gym_id == gym_id).all()
-        return render_template('loyalty_programs.html', loyalty_programs=programs)
-    except NoResultFound:
-        return "No loyalty programs found for this gym"
+
 
 @app.route('/checkout', methods=['GET', "POST"])
 def user_checkout_info():
@@ -361,5 +352,5 @@ def pre_reservation():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0')
 app.secret_key = os.environ.get('SESSION_SECRET_KEY')

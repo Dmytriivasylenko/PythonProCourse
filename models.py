@@ -2,12 +2,10 @@ from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from database import Base
-from sqlalchemy.orm import relationship
 
 
 class FitnessCenter(Base):
     __tablename__ = 'fitness_center'
-
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     address = Column(String, nullable=False)
@@ -31,21 +29,8 @@ class Gym(Base):
     def __repr__(self):
         return f'<Gym {self.id!r}>'
 
-class Loyalty(Base):
-    __tablename__ = 'loyalty_program'
-    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
-    gym_id = Column(Integer, ForeignKey('gym.id'), nullable=False)
-    description = Column(String(100), nullable=False)
 
-    def __init__(self, name, gym_id, description):
-        self.name = name
-        self.gym_id = gym_id
-        self.description = description
-
-    def __repr__(self):
-        return f'<Loyalty {self.name!r}>'
-
+#
 class Reservation(Base):
     __tablename__ = 'reservation'
     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
@@ -74,8 +59,6 @@ class Review(Base):
     gym_id = Column(Integer, ForeignKey('fitness_center.id'))
     user_id = Column(Integer, ForeignKey('fitness_center.id'))
     rating = Column(Integer, nullable=False)
-
-
     def __init__(self, trainer_id, gym_id, user_id, rating):
         self.trainer_id = trainer_id
         self.gym_id = gym_id
@@ -121,7 +104,7 @@ class Trainer(Base):
         self.gym_id = gym_id
 
     def __repr__(self):
-        return f'<Trainer {self.name!r}>'
+        return f'<Trainer {self.id!r}>'
 
 
 
@@ -140,21 +123,11 @@ class Schedule(Base):
         self.start_time = start_time
         self.end_time = end_time
 
-
-class LoyaltyProgram(Base):
-    __tablename__ = 'loyalty_programі'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String)
-    description = Column(String)
-    discount = Column(Integer)
-    gym_id = Column(Integer, ForeignKey('fitness_center.id'))
+    def __repr__(self):
+        return f'<Schedule {self.trainer_id!r}>'
 
 
-
-
-
-class Trainerser(Base):
+class Trainers(Base):
     __tablename__ = 'trainer_services'
     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     name = Column(String(50), nullable=False)
@@ -170,7 +143,6 @@ class Trainerser(Base):
 
     def __repr__(self):
         return f'Trainerser {self.gym_id!r}>'
-
 
 
 
@@ -200,5 +172,4 @@ class User(Base):
 
     def __repr__(self):
         return f'<User {self.login!r}>'
-
 

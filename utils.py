@@ -1,9 +1,11 @@
 import datetime
 import sqlite3
 from datetime import datetime
+
+from sqlalchemy.orm import joinedload
+
 import database
 import models
-from sqlalchemy.orm import joinedload
 
 def dict_factory(cursor, row):
     d = {}
