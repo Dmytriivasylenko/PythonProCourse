@@ -1,11 +1,14 @@
 import os
+import subprocess
 
 from flask import Flask, render_template, request, redirect, session
 from sqlalchemy.exc import NoResultFound, IntegrityError
+from sqlalchemy.sql.functions import user
 
 import database
 import models
 from models import Reservation, FitnessCenter, Trainer, Service, Review
+from send_mail import send_mail
 from utils import SQLiteDatabase, check_credentials, calc_slots
 
 app = Flask(__name__)
@@ -22,9 +25,15 @@ def login_required(func):
     return wrapper
 
 
+
+
+
+
 @app.route("/", methods=["GET", "POST"])
 def index():
-    return render_template("index.html")
+    #send_mail('vasylenkodmytrii@gmail.com', 'sudo', 'some text')
+    return render_template("index.html",)
+
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -39,7 +48,6 @@ def get_register():
                                 )
             database.db_session.add(user1)
             database.db_session.commit()
-
             user1.add_funds(10)
             database.db_session.add(user1)
             database.db_session.commit()
@@ -56,7 +64,6 @@ def get_register():
 def get_users():
     if "user_id" not in session:
         return redirect('/login')
-
     if request.method == 'POST':
         form_data = request.form
         database.init_db()
@@ -66,6 +73,7 @@ def get_users():
                             phone=form_data['phone'])
         database.db_session.add(user1)
         database.db_session.commit()
+
     return render_template('user_dashboard.html')
 # не відображаються тренери з бд
 
@@ -82,7 +90,6 @@ def user_details(user_id):
             user.phone = form_data['phone']
             database.db_session.commit()
         return redirect(f'/user/{user_id}')
-
     user = database.db_session.query(models.User).filter_by(id=user_id).first()
     return render_template('user_detail.html', user=user)
 
@@ -105,7 +112,18 @@ def user_reservations():
         trainer_id = form_dict['trainer_id']
         slot_id = form_dict['slot_id']
         result: calc_slots(service_id, trainer_id, slot_id)
+        send_mail.delay('vasylenkodmytrii@gmail.com', 'Confirmation reservation', 'Your reservation has been created')
+
         return "create user reservation"
+
+
+
+
+
+
+
+
+
 
 
 @app.route('/user/reservations/<int:reservation_id>', methods=['GET', 'POST'])
@@ -173,7 +191,7 @@ def select_trainer_service():
         service_id = request.form['service']
         desired_date = request.form['date']
 
-        return redirect('/choose_trainer_date', trainer_id=trainer_id, service_id=service_id, desired_date=desired_date)
+        return redirect('/choose_trainer_date', 'trainer_id=trainer_id', 'service_id=service_id', 'desired_date=desired_date')
 #отримуємо списки тренерів
     trainers = database.db_session.query(Trainer).all()
     services = database.db_session.query(Service).all()
@@ -343,7 +361,6 @@ def pre_reservation():
     trainer = request.form["trainer"]
     service = request.form["service"]
     desired_date = request.form["desired_date"]
-
     time_slots = calc_slots(trainer, service, desired_date)
     return render_template('pre_reservation.html', form_info={"trainer": trainer,
                                                               "service": service,
@@ -352,5 +369,5 @@ def pre_reservation():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5001)
 app.secret_key = os.environ.get('SESSION_SECRET_KEY')
