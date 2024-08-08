@@ -14,8 +14,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Відкриваємо порт 80 для зовнішнього доступу до контейнера
 EXPOSE 5000
 
-# Виконуємо app.py при запуску контейнера
-CMD ["python", "app.py"]
 
 
 

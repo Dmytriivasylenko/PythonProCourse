@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
+
 from database import Base
 
 
@@ -8,10 +10,10 @@ class FitnessCenter(Base):
     __tablename__ = 'fitness_center'
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
-    address = Column(String, nullable=False)
+    adress = Column(String, nullable=False)
 
     def __repr__(self):
-        return f"<FitnessCenter(id={self.id}, name={self.name}, address={self.address})>"
+        return f"name={self.name}, adress={self.adress})>"
 
 class Gym(Base):
     __tablename__ = 'gym'
@@ -94,9 +96,10 @@ class Service(Base):
 
 class Trainer(Base):
     __tablename__ = 'trainer'
-    id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
-    gym_id = Column(Integer, ForeignKey('fitness_center_id'))
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    gym_id = Column(Integer, ForeignKey('fitness_center.id'))
+    fitness_center = relationship("FitnessCenter")
 
     def __init__(self, id, name, gym_id):
         self.id = id
@@ -127,22 +130,20 @@ class Schedule(Base):
         return f'<Schedule {self.trainer_id!r}>'
 
 
-class Trainers(Base):
+class TrainerServices(Base):
     __tablename__ = 'trainer_services'
     id = Column(Integer, primary_key=True, unique=True, autoincrement=True)
     name = Column(String(50), nullable=False)
     description = Column(String(100), nullable=False)
-    gym_id = Column(Integer, ForeignKey('fitness_center_id'))
-    service_id = Column(Integer, ForeignKey('fitness_center.id'))
+    gym_id = Column(Integer, ForeignKey('fitness_center.id'))
 
-    def __init__(self, name, description, gym_id, service_id):
+    def __init__(self, name, description, gym_id):
         self.name = name
         self.description = description
         self.gym_id = gym_id
-        self.service_id = service_id
 
     def __repr__(self):
-        return f'Trainerser {self.gym_id!r}>'
+        return f'TrainerServices {self.gym_id!r}>'
 
 
 
@@ -154,6 +155,8 @@ class User(Base):
     birth_date = Column(String, default=datetime(1940, 1, 1), nullable=False)
     phone = Column(String(50), nullable=False)
     funds = Column(Integer, default=0, nullable=False)
+    profile_image = Column(String(150), nullable=True)
+    email = Column(String(150), nullable=True)
 
     def __init__(self, login, password, birth_date, phone):
         self.login = login
