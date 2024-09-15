@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Service Info</title>
+    <title>Service Details</title>
+    <style>
+        /* Add your styles here */
+    </style>
 </head>
 <body>
-    <h1>Service Info</h1>
-    {% if service %}
-        <h2>{{ service.name }}</h2>
-        <p>{{ service.description }}</p>
-        <p>Price: ${{ service.price }}</p>
-    {% else %}
-        <p>No service found for this gym.</p>
-    {% endif %}
+    <h1>Service Details</h1>
+    <h2>{{ service.name }}</h2>
+    <p>{{ service.description }}</p>
+    <a href="{{ url_for('get_services', gym_id=service.gym_id) }}">Back to Services</a>
 </body>
 </html>

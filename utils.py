@@ -1,9 +1,7 @@
 import datetime
 import sqlite3
 from datetime import datetime
-
 from sqlalchemy.orm import joinedload
-
 import database
 import models
 
@@ -83,46 +81,67 @@ def select_method(self, table, condition=None, columns=None, fetch_all=True, joi
         return result if result else None
 
 
+
 def calc_slots(trainer_id, service_id, desired_date):
     with SQLiteDatabase('db.db') as db:
+        # Query to get the booked times for the specific trainer
         booked_time = db.fetch_all(
-            "SELECT * FROM reservation JOIN service ON service.id = reservation.service_id WHERE trainer_id = ?",
-            (trainer_id,))
-        trainer_schedule = db.fetch_one("SELECT * FROM trainer_schedule WHERE trainer_id = ? AND date = ?",
-                                        (trainer_id, desired_date))
-        trainer_capacity = db.fetch_one('SELECT * FROM trainer_services WHERE trainer_id = ? AND service_id = ?',
-                                        (trainer_id, service_id))
-        service_info = db.fetch_one("SELECT * FROM service WHERE id = ?", (service_id,))
+            "SELECT * FROM reservation WHERE trainer_id = ?", (trainer_id,)
+        )
 
-    if not (trainer_schedule and trainer_capacity and service_info):
-        return []
+        # Query to get the trainer's schedule for a specific date
+        trainer_schedule = db.fetch_one(
+            "SELECT * FROM trainer_schedule WHERE trainer_id = ? AND date = ?",
+            (trainer_id, desired_date)
+        )
 
-    start_dt = datetime.datetime.strptime(trainer_schedule["date"] + ' ' + trainer_schedule["start_time"],
-                                          "%Y-%m-%d %H:%M")
-    end_dt = datetime.datetime.strptime(trainer_schedule["date"] + ' ' + trainer_schedule["end_time"], '%Y-%m-%d %H:%M')
-    curr_dt = start_dt
-    date_times = {}
-    while curr_dt < end_dt:
-        date_times[curr_dt] = trainer_capacity['capacity']
-        curr_dt += datetime.timedelta(minutes=15)
+        # Query to get the service details (adjust based on actual schema)
+        service_info = db.fetch_one(
+            'SELECT * FROM service WHERE id = ?',
+            (service_id,)
+        )
 
-    for one_booking in booked_time:
-        booking_start = datetime.datetime.strptime(one_booking["date"] + ' ' + one_booking["time"], "%Y-%m-%d %H:%M")
-        booking_end = booking_start + datetime.timedelta(minutes=one_booking["duration"])
-        curr_dt = booking_start
-        while curr_dt < booking_end:
-            date_times[curr_dt] -= 1
-            curr_dt += datetime.timedelta(minutes=15)
+        # Ensure the necessary data exists
+        if not (trainer_schedule and service_info):
+            return []
 
-    result_times = []
-    service_duration = service_info['duration']
-    service_start_time = start_dt
-    while service_start_time <= end_dt - datetime.timedelta(minutes=service_duration):
-        service_end_time = service_start_time + datetime.timedelta(minutes=service_duration)
-        everything_is_free = all(date_times.get(service_start_time + datetime.timedelta(minutes=15 * i), 0) > 0 for i in
-                                 range(int(service_duration / 15)))
-        if everything_is_free:
-            result_times.append(service_start_time)
-        service_start_time += datetime.timedelta(minutes=15)
+        # Initialize start and end times
+        start_dt = datetime.strptime(trainer_schedule["date"] + ' ' + trainer_schedule["start_time"], "%Y-%m-%d %H:%M")
+        end_dt = datetime.strptime(trainer_schedule["date"] + ' ' + trainer_schedule["end_time"], '%Y-%m-%d %H:%M')
 
-    return [dt.strftime("%H:%M") for dt in result_times]
+        curr_dt = start_dt
+        date_times = {}
+
+        # Fill time slots based on capacity (assuming capacity is part of another query)
+        while curr_dt < end_dt:
+            date_times[curr_dt] = 1  # Adjust capacity if necessary
+            curr_dt += datetime(minutes=15)
+
+        # Subtract booked times from available slots
+        for booking in booked_time:
+            booking_start = datetime.strptime(booking["date"] + ' ' + booking["time"], "%Y-%m-%d %H:%M")
+            booking_end = booking_start + datetime(minutes=booking["duration"])
+            curr_dt = booking_start
+            while curr_dt < booking_end:
+                date_times[curr_dt] -= 1
+                curr_dt += datetime(minutes=15)
+
+        # Find available time slots
+        result_times = []
+        service_duration = service_info['duration']
+        service_start_time = start_dt
+
+        while service_start_time <= end_dt - datetime(minutes=service_duration):
+            service_end_time = service_start_time + datetime(minutes=service_duration)
+
+            everything_is_free = all(
+                date_times.get(service_start_time + datetime(minutes=15 * i), 0) > 0
+                for i in range(int(service_duration / 15))
+            )
+
+            if everything_is_free:
+                result_times.append(service_start_time)
+
+            service_start_time += datetime(minutes=15)
+
+        return [dt.strftime("%H:%M") for dt in result_times]

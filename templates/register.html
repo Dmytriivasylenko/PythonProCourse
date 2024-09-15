@@ -27,11 +27,28 @@
         input[type=submit]:hover {
             background-color: #99962e;
         }
+        .hidden {
+            display: none;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .button:hover {
+            background-color: #99962e;
+        }
     </style>
 </head>
 <body>
     <h1>User Registration</h1>
-    <form action="/register" method="POST">
+    <form id="registrationForm" action="/register" method="POST">
         <label for="login">Login</label>
         <input type="text" id="login" name="login" required>
 
@@ -46,5 +63,22 @@
 
         <input type="submit" value="Register">
     </form>
+
+    <div id="successMessage" class="hidden">
+        <h2>Registration Successful!</h2>
+        <a href="/" class="button">Go to Home Page</a>
+    </div>
+
+    <script>
+        document.getElementById('registrationForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevent the default form submission
+
+            // Perform your form validation and submission logic here
+
+            // If registration is successful
+            document.getElementById('registrationForm').classList.add('hidden');
+            document.getElementById('successMessage').classList.remove('hidden');
+        });
+    </script>
 </body>
 </html>

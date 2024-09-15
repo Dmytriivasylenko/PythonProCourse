@@ -4,21 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Services</title>
+    <style>
+        /* Add your styles here */
+    </style>
 </head>
 <body>
-    <h1>Services</h1>
-    {% if services %}
-        <ul>
-            {% for service in services %}
-                <li>
-                    <h2>{{ service.name }}</h2>
-                    <p>{{ service.description }}</p>
-                    <p>Price: ${{ service.price }}</p>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No services found for this gym.</p>
-    {% endif %}
+    <h1>Services for Gym {{ gym_id }}</h1>
+    <ul>
+        {% for service in service %}
+            <li>
+                <a href="{{ url_for('get_services', gym_id=gym_id, service_id=service.id) }}">
+                    {{ service.name }} - {{ service.description }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
 </body>
 </html>
+

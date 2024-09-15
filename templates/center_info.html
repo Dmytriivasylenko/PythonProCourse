@@ -38,7 +38,6 @@
         a {
             text-decoration: none;
             color: #4CAF50;
-            font-weight: bold;
         }
         a:hover {
             text-decoration: underline;
@@ -51,8 +50,8 @@
         <ul>
             {% for center in centers %}
                 <li>
-                    <a href="{{ url_for('fitness_center', center_id=center.id) }}">{{ center.name }}</a>
-                    <p>Адреса: {{ center.address }}</p>
+                    <a href="{{ url_for('get_center_info', center_id=center.id) }}">{{ center.name }}</a>
+                    <p>Адреса: {{ center.adress }}</p>
                     <p>Контакти: {{ center.contacts }}</p>
                 </li>
             {% endfor %}

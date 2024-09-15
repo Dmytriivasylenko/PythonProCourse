@@ -1,15 +1,16 @@
 import os
 import subprocess
-
-from flask import Flask, render_template, request, redirect, session
+from alembic.ddl import mysql
+from flask import Flask, render_template, request, redirect, session, url_for
 from sqlalchemy.exc import NoResultFound, IntegrityError
 from sqlalchemy.sql.functions import user
-
 import database
 import models
 from models import Reservation, FitnessCenter, Trainer, Service, Review
 from send_mail import send_mail
 from utils import SQLiteDatabase, check_credentials, calc_slots
+
+
 
 app = Flask(__name__)
 app.secret_key = b'_343435#y2L"F4Q8z\n\xec]/'
@@ -26,14 +27,33 @@ def login_required(func):
 
 
 
+@app.route('/services', methods=['GET'])
+def services():
+    services = [
+        {'id': 1, 'name': 'Персональні Тренування', 'description': 'Отримайте персоналізовані тренувальні плани...', 'duration': '60', 'price': 60},
+        {'id': 2, 'name': 'Групові Заняття', 'description': 'Приєднуйтесь до групових фітнес-занять...', 'duration': '45', 'price': 40},
+        {'id': 3, 'name': 'Консультації з Харчування', 'description': 'Отримайте експертні поради по харчуванню...', 'duration': '30', 'price': 50}
+    ]
+    return render_template('services.html', services=services)
 
+@app.route('/service_action', methods=['POST'])
+def service_action():
+    selected_service_id = request.form.get('service')
+    return redirect(url_for('service_details', service_id=selected_service_id))
+
+@app.route('/service_details/<int:service_id>')
+def service_details(service_id):
+    service = {'id': service_id, 'name': 'Послуга', 'description': 'Опис послуги', 'duration': '60', 'price': 60}
+    return render_template('service_details.html', service=service)
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     #send_mail('vasylenkodmytrii@gmail.com', 'sudo', 'some text')
     return render_template("index.html",)
-
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -52,18 +72,22 @@ def get_register():
             database.db_session.add(user1)
             database.db_session.commit()
 
-            return "User registered"
+            return redirect('/registration_success')
+
     else:
         return render_template('register.html')
 
 
-
+@app.route('/registration_success')
+def registration_success():
+    return render_template('registration_success.html')
 
 @login_required
-@app.route('/user', methods=['GET', "POST"])
+@app.route('/user', methods=['GET', 'POST'])
 def get_users():
     if "user_id" not in session:
         return redirect('/login')
+
     if request.method == 'POST':
         form_data = request.form
         database.init_db()
@@ -74,8 +98,12 @@ def get_users():
         database.db_session.add(user1)
         database.db_session.commit()
 
-    return render_template('user_dashboard.html')
-# не відображаються тренери з бд
+    trainers = database.db_session.query(models.Trainer).all()
+    services = database.db_session.query(models.Service).all()
+
+    return render_template('user_dashboard.html', trainers=trainers,services=services)
+
+#
 
 @app.route('/user/<user_id>', methods=['GET', 'POST'])
 def user_details(user_id):
@@ -118,14 +146,6 @@ def user_reservations():
 
 
 
-
-
-
-
-
-
-
-
 @app.route('/user/reservations/<int:reservation_id>', methods=['GET', 'POST'])
 def user_reservation(reservation_id):
     if request.method == 'POST':
@@ -161,7 +181,6 @@ def delete_reservation(reservation_id):
         db.execute_query(query, (reservation_id,))
     return redirect('user_reservations')
 
-
 @app.route('/login', methods=['GET', 'POST'])
 def get_login():
     if request.method == 'POST':
@@ -183,6 +202,8 @@ def logout():
     session.pop("user_id", None)
     return redirect('/login')
 
+
+
 @login_required
 @app.route('/select_trainer_service', methods=['GET', 'POST'])
 def select_trainer_service():
@@ -190,9 +211,8 @@ def select_trainer_service():
         trainer_id = request.form['trainer']
         service_id = request.form['service']
         desired_date = request.form['date']
-
         return redirect('/choose_trainer_date', 'trainer_id=trainer_id', 'service_id=service_id', 'desired_date=desired_date')
-#отримуємо списки тренерів
+
     trainers = database.db_session.query(Trainer).all()
     services = database.db_session.query(Service).all()
     return render_template('select_trainer_service.html', trainer=trainers, service=services)
@@ -200,10 +220,18 @@ def select_trainer_service():
 
 @app.route('/choose_service_date', methods=['POST'])
 def choose_service_date():
-    trainer_id = request.form['trainer'],
-    service_id = request.form['service'],
-    desired_date = request.form['date']
+    trainer_id = request.form.get('trainer')
+    service_id = request.form.get('service')
+    desired_date = request.form.get('date')
+
+    if not trainer_id or not service_id or not desired_date:
+        return "Missing required parameters", 400
+
     time_slots = calc_slots(trainer_id, service_id, desired_date)
+
+    if not time_slots:
+        return "No available time slots", 404
+
     return render_template('pre_reservation.html', form_info={
         "trainer": trainer_id,
         "service": service_id,
@@ -226,19 +254,18 @@ def choose_trainer_date():
         "desired_date": desired_date,
         "time_slots": time_slots
     })
-
 @app.route('/make_reservation', methods=['POST'])
 def make_reservation():
-    trainer_id = request.form['trainer']
-    service_id = request.form['service']
-    desired_date = request.form['desired_date']
-    selected_time = request.form['time']
+    trainer_id = request.form.get('trainer')
+    service_id = request.form.get('service')
+    desired_date = request.form.get('desired_date')
+    time_slot = request.form.get('time')
 
-    with SQLiteDatabase('db.db') as db:
-        db.execute_query('INSERT INTO reservation (trainer_id, service_id, date, time, user_id) VALUES (?, ?, ?, ?, ?)',
-                         (trainer_id, service_id, desired_date, selected_time, session['user_id']))
+    if not trainer_id or not service_id or not desired_date or not time_slot:
+        return "Missing reservation details", 400
 
-    return redirect('/user')
+
+    return f"Reservation confirmed for {desired_date} at {time_slot}!"
 
 
 @login_required
@@ -278,17 +305,19 @@ def trainer_rating(gym_id, trainer_id):
 def fitness_center():
     if request.method == 'POST':
         form_data = request.form
-        user1 = models.User(name=form_data["name"], adress=form_data['adress'], contacts=form_data['contacts'])
+        user1 = models.User(name=form_data["name"], address=form_data['address'], contacts=form_data['contacts'])
         database.db_session.add(user1)
         database.db_session.commit()
 
-    return render_template('fitness_center.html')
+    # Fetch all fitness centers to display
+    centers = database.db_session.query(FitnessCenter).all()
+    return render_template('fitness_center.html', centers=centers)
 
-@app.route('/fitness_center/<int:gym_id>', methods=['GET'])
-def get_fitness_center(gym_id):
+@app.route('/fitness_center/<int:center_id>', methods=['GET'])
+def get_center_info(center_id):
     try:
-        center = database.db_session.query(FitnessCenter).filter(FitnessCenter.id == gym_id).one()
-        return render_template('fitness_center_id.html', fitness_center=center)
+        center = database.db_session.query(FitnessCenter).filter(FitnessCenter.id == center_id).one()
+        return render_template('center_info.html', center=center)
     except NoResultFound:
         return "Fitness center not found"
 
@@ -316,11 +345,6 @@ def get_service_info(gym_id, service_id):
         return render_template('service_info.html', service=service)
     except NoResultFound:
         return "Service not found"
-
-
-
-
-
 
 
 @app.route('/checkout', methods=['GET', "POST"])

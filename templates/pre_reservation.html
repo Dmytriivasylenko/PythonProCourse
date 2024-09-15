@@ -4,22 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choose Time Slot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+            margin: 0;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        form {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label, select, input[type="submit"] {
+            display: block;
+            width: 100%;
+            margin-bottom: 10px;
+            padding: 8px;
+        }
+
+        select {
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <h1>Choose Time Slot</h1>
-    <p>Trainer: {{ form_info.trainer }}</p>
-    <p>Service: {{ form_info.service }}</p>
-    <p>Date: {{ form_info.desired_date }}</p>
+
     <form action="/make_reservation" method="post">
         <input type="hidden" name="trainer" value="{{ form_info.trainer }}">
         <input type="hidden" name="service" value="{{ form_info.service }}">
         <input type="hidden" name="desired_date" value="{{ form_info.desired_date }}">
+
+        <p>Trainer: {{ form_info.trainer }}</p>
+        <p>Service: {{ form_info.service }}</p>
+        <p>Date: {{ form_info.desired_date }}</p>
+
         <label for="time">Available Time Slots:</label>
-        <select name="time" id="time">
+        <select name="time" id="time" required>
+            <option value="" disabled selected>Select a time slot</option>
             {% for time in form_info.time_slots %}
             <option value="{{ time }}">{{ time }}</option>
             {% endfor %}
-        </select><br>
+        </select>
+
         <input type="submit" value="Reserve">
     </form>
 </body>

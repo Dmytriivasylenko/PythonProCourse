@@ -1,29 +1,221 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
+    <title>Панель Користувача</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        h2 {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+        select, input[type=date] {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+        input[type=submit] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        input[type=submit]:hover {
+            background-color: #45a049;
+        }
+        .error-message {
+            color: red;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+            display: inline-block;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .logout-button {
+            background-color: #f44336;
+            margin-top: 20px;
+        }
+        .logout-button:hover {
+            background-color: #c62828;
+        }
+        .calendar {
+            margin-top: 20px;
+        }
+        .calendar-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .calendar-date {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .calendar-date input {
+            width: auto;
+            flex: 1;
+        }
+        .bookings {
+            margin-top: 30px;
+        }
+        .booking-item {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        .booking-item p {
+            margin: 5px 0;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome, User!</h1>
-    <h2>Choose a Trainer and Service</h2>
-    <form action="/choose_service_date" method="post">
-        <label for="trainer">Trainer:</label>
-        <select name="trainer" id="trainer">
-            {% for trainer in trainer %}
-            <option value="{{ trainer.id }}">{{ trainer.name }}</option>
-            {% endfor %}
-        </select><br>
-        <label for="service">Service:</label>
-        <select name="service" id="service">
-            {% for service in services %}
-            <option value="{{ service.id }}">{{ service.name }}</option>
-            {% endfor %}
-        </select><br>
-        <label for="date">Date:</label>
-        <input type="date" id="date" name="date"><br>
-        <input type="submit" value="Next">
-    </form>
+    <header>
+        <h1>Панель Користувача</h1>
+    </header>
+    <div class="container">
+        <a href="/" class="button">Головна</a>
+        <a href="/logout" class="button logout-button">Вийти</a>
+        <h2>Вибір Тренера та Послуги</h2>
+        <form id="service-form" action="/choose_service_date" method="post">
+            <!-- Trainer selection -->
+            <label for="trainer">Тренер:</label>
+            <select name="trainer" id="trainer" required>
+                <option value="" disabled selected>Оберіть тренера</option>
+                {% for trainer in trainers %}
+                <option value="{{ trainer.id }}">{{ trainer.name }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Service selection -->
+            <label for="service">Послуга:</label>
+            <select name="service" id="service" required>
+                <option value="" disabled selected>Оберіть послугу</option>
+                {% for service in services %}
+                <option value="{{ service.id }}">{{ service.name }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Date selection -->
+            <label for="date">Дата:</label>
+            <input type="date" id="date" name="date" required>
+
+            <div id="error-message" class="error-message"></div>
+
+            <input type="submit" value="Далі">
+        </form>
+
+        <!-- Calendar and bookings section -->
+        <div class="calendar">
+            <h2>Оберіть Дату і Час</h2>
+            <div class="calendar-date">
+                <label class="calendar-label" for="calendar-date">Дата:</label>
+                <input type="date" id="calendar-date" name="calendar-date">
+            </div>
+        </div>
+
+        <div class="bookings">
+            <h2>Мої Бронювання</h2>
+            <div class="booking-item">
+                <p><strong>Тренер:</strong> Іван Іванов</p>
+                <p><strong>Послуга:</strong> Персональні Тренування</p>
+                <p><strong>Дата:</strong> 2024-10-10</p>
+                <p><strong>Час:</strong> 15:00</p>
+            </div>
+            <!-- Repeat for other bookings -->
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const trainerSelect = document.getElementById('trainer');
+            const serviceSelect = document.getElementById('service');
+            const errorMessage = document.getElementById('error-message');
+
+            trainerSelect.addEventListener('change', function () {
+                const trainerId = trainerSelect.value;
+                if (trainerId) {
+                    fetchServices(trainerId);
+                }
+            });
+
+            document.getElementById('service-form').addEventListener('submit', function (event) {
+                const dateInput = document.getElementById('date');
+                if (new Date(dateInput.value) < new Date()) {
+                    event.preventDefault();
+                    errorMessage.textContent = 'Будь ласка, оберіть дату в майбутньому.';
+                } else {
+                    errorMessage.textContent = '';
+                }
+            });
+        });
+
+        function fetchServices(trainerId) {
+            fetch(`/api/services?trainer_id=${trainerId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const serviceSelect = document.getElementById('service');
+                    serviceSelect.innerHTML = '<option value="" disabled selected>Оберіть послугу</option>';
+                    data.services.forEach(service => {
+                        const option = document.createElement('option');
+                        option.value = service.id;
+                        option.textContent = service.name;
+                        serviceSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Помилка при отриманні послуг:', error));
+        }
+    </script>
 </body>
 </html>
